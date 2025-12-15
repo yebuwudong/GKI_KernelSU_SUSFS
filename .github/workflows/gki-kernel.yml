@@ -603,7 +603,40 @@ jobs:
           echo "CONFIG_NETFILTER_XT_TARGET_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_NETFILTER_XT_SET=y" >> ./common/arch/arm64/configs/gki_defconfig
-          
+       
+      - name: 添加 Docker 容器支持配置
+        run: |
+          cd "$CONFIG"
+          CONFIG_FILE="./common/arch/arm64/configs/gki_defconfig"
+          echo "启用 Docker/容器化所需的核心内核配置..."
+
+          # 命名空间 (Namespaces) - 隔离性基础
+          # CONFIG_USER_NS 是支持 Docker Rootless 模式的关键
+          echo "CONFIG_NAMESPACES=y" >> "$CONFIG_FILE"
+          echo "CONFIG_UTS_NS=y" >> "$CONFIG_FILE"
+          echo "CONFIG_IPC_NS=y" >> "$CONFIG_FILE"
+          echo "CONFIG_USER_NS=y" >> "$CONFIG_FILE" 
+          echo "CONFIG_PID_NS=y" >> "$CONFIG_FILE"
+          echo "CONFIG_NET_NS=y" >> "$CONFIG_FILE"
+
+          # 控制组 (Control Groups, Cgroups) - 资源管理
+          echo "CONFIG_CGROUPS=y" >> "$CONFIG_FILE"
+          echo "CONFIG_CGROUP_FREEZER=y" >> "$CONFIG_FILE"
+          echo "CONFIG_CGROUP_PIDS=y" >> "$CONFIG_FILE"
+          echo "CONFIG_MEMCG=y" >> "$CONFIG_FILE"
+          echo "CONFIG_CGROUP_SCHED=y" >> "$CONFIG_FILE"
+          echo "CONFIG_CFS_BANDWIDTH=y" >> "$CONFIG_FILE"
+          echo "CONFIG_CGROUP_DEVICE=y" >> "$CONFIG_FILE"
+          echo "CONFIG_BLK_CGROUP=y" >> "$CONFIG_FILE"
+
+          # 网络支持 (Networking) - 虚拟网卡与桥接
+          echo "CONFIG_VETH=y" >> "$CONFIG_FILE"
+          echo "CONFIG_BRIDGE=y" >> "$CONFIG_FILE"
+          echo "CONFIG_IP_NF_FILTER=y" >> "$CONFIG_FILE"
+          echo "CONFIG_NETFILTER_XT_TARGET_CHECKSUM=y" >> "$CONFIG_FILE"
+
+          echo "Docker 配置已添加到 gki_defconfig。" 
+                   
       - name: 编译优化
         if: ${{ inputs.use_O2 }}
         run: |
@@ -825,4 +858,5 @@ jobs:
           path: |
             *AnyKernel3.zip
             *.img
+
 
