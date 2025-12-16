@@ -610,6 +610,14 @@ jobs:
           CONFIG_FILE="./common/arch/arm64/configs/gki_defconfig"
           echo "启用 Docker/容器化所需的核心内核配置（最小集合）..."
 
+          # 核心 OverlayFS 模块
+          # 必须启用 Overlay 文件系统
+          echo "CONFIG_OVERLAY_FS=y" >> "$CONFIG_FILE"
+
+          # VFS 依赖：防止 'Invalid argument' 错误的常见依赖
+          # 确保内核支持 Dnotify（通常 GKI 默认开启，但为保险起见）
+          echo "CONFIG_DNOTIFY=y" >> "$CONFIG_FILE"
+          
           # 命名空间 (Namespaces) - 隔离性基础
           # 这是 Docker 隔离的关键
           echo "CONFIG_NAMESPACES=y" >> "$CONFIG_FILE"
@@ -860,4 +868,5 @@ jobs:
           path: |
             *AnyKernel3.zip
             *.img
+
 
